@@ -1,0 +1,10 @@
+-r base.txt
+
+black
+ipdb
+ipython
+isort
+numpy==1.17.3
+orjson==2.1.2
+pre-commit
+pytest-coverage
