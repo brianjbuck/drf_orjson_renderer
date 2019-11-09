@@ -28,7 +28,6 @@ REST_FRAMEWORK = {
         "drf_orjson_renderer.renderers.ORJSONRenderer",
         "rest_framework.renderers.BrowsableAPIRenderer",
     ),
-    ...
 }
 ```
 
@@ -39,7 +38,6 @@ REST_FRAMEWORK = {
     "DEFAULT_PARSER_CLASSES": (
         "drf_orjson_renderer.parsers.ORJSONParser",
     ),
-    ...
 }
 ```
 
