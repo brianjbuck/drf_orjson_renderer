@@ -1,24 +1,21 @@
 import datetime
 import json
+import unittest
 import uuid
-from collections import OrderedDict, defaultdict, namedtuple
+from collections import OrderedDict, defaultdict
 from decimal import Decimal
 from io import BytesIO
-from unittest import TestCase
 
 import numpy
-from django.conf import settings
 from rest_framework import status
 from rest_framework.exceptions import ErrorDetail, ParseError
 from rest_framework.settings import api_settings
 from rest_framework.utils.serializer_helpers import ReturnDict, ReturnList
 
 import orjson
+from drf_orjson_renderer.encoders import DjangoNumpyJSONEncoder
 from drf_orjson_renderer.parsers import ORJSONParser
 from drf_orjson_renderer.renderers import ORJSONRenderer
-
-
-settings.configure()
 
 
 class IterObj:
@@ -30,7 +27,7 @@ class IterObj:
             yield self.value
 
 
-class RendererTestCase(TestCase):
+class RendererTestCase(unittest.TestCase):
     def setUp(self):
         self.renderer = ORJSONRenderer()
         self.data = {
@@ -80,7 +77,7 @@ class RendererTestCase(TestCase):
         now = datetime.datetime.now()
         data = {"now": now}
         rendered = self.renderer.render(
-            data=data, media_type="text/html", renderer_context={"indent": 4},
+            data=data, media_type="text/html", renderer_context={"indent": 4}
         )
         reloaded = orjson.loads(rendered)
         now_formatted = now.isoformat()
@@ -96,7 +93,7 @@ class RendererTestCase(TestCase):
         today = datetime.date.today()
         data = {"today": today}
         rendered = self.renderer.render(
-            data=data, media_type="text/html", renderer_context={"indent": 4},
+            data=data, media_type="text/html", renderer_context={"indent": 4}
         )
         reloaded = orjson.loads(rendered)
         self.assertEqual(reloaded, {"today": today.isoformat()})
@@ -135,7 +132,7 @@ class RendererTestCase(TestCase):
         d = defaultdict(int)
         d["1"] = 1
         rendered = self.renderer.render(
-            data=d, media_type="application/json", renderer_context={},
+            data=d, media_type="application/json", renderer_context={}
         )
         reloaded = orjson.loads(rendered)
 
@@ -218,7 +215,7 @@ class RendererTestCase(TestCase):
         """
         data = numpy.array([1])
         rendered = self.renderer.render(
-            data=data, media_type="application/json", renderer_context={},
+            data=data, media_type="application/json", renderer_context={}
         )
         reloaded = orjson.loads(rendered)
 
@@ -230,7 +227,7 @@ class RendererTestCase(TestCase):
         """
         data = numpy.int32(0)
         rendered = self.renderer.render(
-            data=data, media_type="application/json", renderer_context={},
+            data=data, media_type="application/json", renderer_context={}
         )
         reloaded = orjson.loads(rendered)
 
@@ -242,7 +239,7 @@ class RendererTestCase(TestCase):
         """
         data = numpy.float32(0.0)
         rendered = self.renderer.render(
-            data=data, media_type="application/json", renderer_context={},
+            data=data, media_type="application/json", renderer_context={}
         )
         reloaded = orjson.loads(rendered)
 
@@ -255,7 +252,7 @@ class RendererTestCase(TestCase):
         uuid_var = uuid.uuid4()
         data = {"value": uuid_var}
         rendered = self.renderer.render(
-            data=data, media_type="application/json", renderer_context={},
+            data=data, media_type="application/json", renderer_context={}
         )
         reloaded = orjson.loads(rendered)
 
@@ -268,7 +265,7 @@ class RendererTestCase(TestCase):
         iter_obj = IterObj(5)
         data = {"value": iter_obj}
         rendered = self.renderer.render(
-            data=data, media_type="application/json", renderer_context={},
+            data=data, media_type="application/json", renderer_context={}
         )
         reloaded = orjson.loads(rendered)
 
@@ -324,8 +321,44 @@ class RendererTestCase(TestCase):
                 renderer_context={"default_function": None},
             )
 
+    def test_built_in_renderer_works_correctly_with_numpy_int(self):
+        """
+        Ensure that numpy.int is serialized correctly with Python's
+        built-in json module.
+        """
+        data = numpy.int32(0)
+        rendered = self.renderer.render(
+            data=data,
+            media_type="text/html",
+            renderer_context={
+                "django_encoder_class": DjangoNumpyJSONEncoder,
+                "indent": 4,
+            },
+        )
+        reloaded = orjson.loads(rendered)
 
-class ParserTestCase(TestCase):
+        self.assertEqual(reloaded, data)
+
+    def test_built_in_renderer_works_correctly_with_numpy_floating(self):
+        """
+        Ensure that numpy.floating is serialized correctly with Python's
+        built-in json module.
+        """
+        data = numpy.float32(0.0)
+        rendered = self.renderer.render(
+            data=data,
+            media_type="text/html",
+            renderer_context={
+                "django_encoder_class": DjangoNumpyJSONEncoder,
+                "indent": 4,
+            },
+        )
+        reloaded = orjson.loads(rendered)
+
+        self.assertEqual(reloaded, data)
+
+
+class ParserTestCase(unittest.TestCase):
     def setUp(self):
         self.parser = ORJSONParser()
         self.data = {
@@ -363,3 +396,10 @@ class ParserTestCase(TestCase):
                 media_type="application/json",
                 parser_context={},
             )
+
+
+if __name__ == "__main__":
+    from django.conf import settings
+
+    settings.configure()
+    unittest.main()
