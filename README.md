@@ -111,5 +111,21 @@ class MyView(APIView):
         return Response(data=my_complex_data)
 ```
 
+This package provides an encoder class that overrides the DjangoJSONEncoder with
+support for numpy types:
+
+```Python
+from drf_orjson_renderer.encoders import DjangoNumpyJSONEncoder
+from rest_framework.views import APIView
+
+class MyView(APIView):
+
+
+    def get_renderer_context(self):
+        renderer_context = super().get_renderer_context()
+        renderer_context["django_encoder_class"] = DjangoNumpyJSONEncoder
+        return renderer_context
+```
+
 ## Benchmarks
 See the [orjson Benchmarks](https://github.com/ijl/orjson#performance) for more information
