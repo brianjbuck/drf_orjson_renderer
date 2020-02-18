@@ -26,7 +26,7 @@ setup(
     long_description=readme(),
     author="brianjbuck",
     author_email="brian@thebuckpasser.com",
-    url="https://github.com/brianjbuck/drf-orjson-renderer",
+    url="https://github.com/brianjbuck/drf_orjson_renderer",
     packages=["drf_orjson_renderer"],
     license="MIT",
     install_requires=["django", "djangorestframework", "orjson"],
