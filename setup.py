@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 
-from pip._internal.download import PipSession
-from pip._internal.req import parse_requirements
 from setuptools import setup
 
 import version
