@@ -25,7 +25,7 @@ class ORJSONRenderer(BaseRenderer):
 
     options = functools.reduce(
         operator.or_,
-        getattr(api_settings, "ORJSON_RENDERER_OPTIONS", ()),
+        api_settings.user_settings.get('ORJSON_RENDERER_OPTIONS', ()),
         orjson.OPT_SERIALIZE_DATACLASS,
     )
 
