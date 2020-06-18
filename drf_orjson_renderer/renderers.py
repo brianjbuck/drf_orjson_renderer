@@ -1,4 +1,6 @@
+import functools
 import json
+import operator
 import uuid
 from decimal import Decimal
 
@@ -20,6 +22,12 @@ class ORJSONRenderer(BaseRenderer):
 
     media_type = "application/json"
     format = "json"
+
+    options = functools.reduce(
+        operator.or_,
+        api_settings.user_settings.get('ORJSON_RENDERER_OPTIONS', ()),
+        orjson.OPT_SERIALIZE_DATACLASS,
+    )
 
     @staticmethod
     def default(obj):
@@ -86,7 +94,7 @@ class ORJSONRenderer(BaseRenderer):
         indent = renderer_context.get("indent")
         if indent is None or "application/json" in media_type:
             serialized = orjson.dumps(
-                data, default=default, option=orjson.OPT_SERIALIZE_DATACLASS
+                data, default=default, option=self.options,
             )
         else:
             encoder_class = renderer_context.get(

@@ -30,6 +30,16 @@ REST_FRAMEWORK = {
     ),
 }
 ```
+To modify how data is serialized, specify options in your `settings.py`
+```Python
+REST_FRAMEWORK = {
+    "ORJSON_RENDERER_OPTIONS": (
+        orjson.OPT_NON_STR_KEYS,
+        orjson.OPT_SERIALIZE_DATACLASS,
+        orjson.OPT_SERIALIZE_NUMPY,
+    ),
+}
+```
 
 Also you can set the `ORJSONParser` class as your default parser in your `settings.py`
 
