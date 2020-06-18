@@ -25,7 +25,7 @@ class ORJSONRenderer(BaseRenderer):
 
     options = functools.reduce(
         operator.or_,
-        api_settings.user_settings.get('ORJSON_RENDERER_OPTIONS', ()),
+        api_settings.user_settings.get("ORJSON_RENDERER_OPTIONS", ()),
         orjson.OPT_SERIALIZE_DATACLASS,
     )
 
@@ -94,7 +94,7 @@ class ORJSONRenderer(BaseRenderer):
         indent = renderer_context.get("indent")
         if indent is None or "application/json" in media_type:
             serialized = orjson.dumps(
-                data, default=default, option=self.options,
+                data, default=default, option=self.options
             )
         else:
             encoder_class = renderer_context.get(
