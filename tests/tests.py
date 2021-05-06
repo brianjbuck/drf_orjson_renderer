@@ -357,6 +357,18 @@ class RendererTestCase(unittest.TestCase):
 
         self.assertEqual(reloaded, data)
 
+    def test_built_in_renderer_works_correctly_with_none(self):
+        """
+        Ensure that empty response won't generate 'null' as result.
+        """
+        data = None
+        rendered = self.renderer.render(
+            data=data,
+            media_type="application/json",
+        )
+
+        self.assertEqual(b'', rendered)
+
 
 class ParserTestCase(unittest.TestCase):
     def setUp(self):

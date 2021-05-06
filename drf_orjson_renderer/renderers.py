@@ -68,6 +68,9 @@ class ORJSONRenderer(BaseRenderer):
                 the following keys: view, request, response, args, kwargs
         :return: bytes() representation of the data encoded to UTF-8
         """
+        if data is None:
+            return b''
+
         renderer_context = renderer_context or {}
 
         # By default, this function will use its own version of `default()` in
