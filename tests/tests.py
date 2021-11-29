@@ -7,6 +7,7 @@ from decimal import Decimal
 from io import BytesIO
 
 import numpy
+from django.utils.functional import lazy, Promise
 from rest_framework import status
 from rest_framework.exceptions import ErrorDetail, ParseError
 from rest_framework.settings import api_settings
@@ -312,14 +313,33 @@ class RendererTestCase(unittest.TestCase):
         default but the data cannot be serialized by orjson it should
         raise a JSONEncodeError.
         """
-
-        data = OrderedDict({"value": "test"})
+        data = {'this is a set', 'that orjson cannot serialize'}
         with self.assertRaises(orjson.JSONEncodeError):
             self.renderer.render(
                 data=data,
                 media_type="application/json",
                 renderer_context={"default_function": None},
             )
+        
+    def test_renderer_works_correctly_with_django_promise(self):
+        """
+        Ensure django promises are serialized the same way as
+        DjangoJSONEncoder which just casts the result of the 
+        Promise to a string. 
+
+        https://github.com/django/django/blob/main/django/core/serializers/json.py
+        """
+        stringdoubler = lazy(lambda i: i + i, str)
+        data = stringdoubler('hello')
+        self.assertEqual(data, 'hellohello')
+        self.assertIsInstance(data, Promise)
+
+        rendered = self.renderer.render(
+            data=data,
+            media_type="application/json",
+        )
+        reloaded = orjson.loads(rendered)
+        self.assertEqual(reloaded, data)
 
     def test_built_in_renderer_works_correctly_with_numpy_int(self):
         """

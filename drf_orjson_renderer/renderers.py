@@ -5,6 +5,7 @@ import uuid
 from decimal import Decimal
 
 from django.core.serializers.json import DjangoJSONEncoder
+from django.utils.functional import Promise
 from rest_framework.renderers import BaseRenderer
 from rest_framework.settings import api_settings
 
@@ -49,7 +50,7 @@ class ORJSONRenderer(BaseRenderer):
                 return str(obj)
             else:
                 return float(obj)
-        elif isinstance(obj, (str, uuid.UUID)):
+        elif isinstance(obj, (str, uuid.UUID, Promise)):
             return str(obj)
         elif hasattr(obj, "tolist"):
             return obj.tolist()
