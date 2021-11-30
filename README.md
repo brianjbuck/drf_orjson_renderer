@@ -95,9 +95,12 @@ order to take advantage of the RestFramework Browsable API, when the
 requested media type is not `application/json`, the ORJSON renderer will add
 `orjson.OPT_INDENT_2` to the options mask to pretty print your output.
 
+## Numpy
 
-This package provides an encoder class that overrides the DjangoJSONEncoder with
-support for numpy types:
+When this package was originally written ORJSON did not natively support
+serializing numpy types. This package provided an encoder class that
+overrides the DjangoJSONEncoder with support for numpy types. This encoder
+is no longer necessary but included for backwards compatibility.
 
 ```Python
 from drf_orjson_renderer.encoders import DjangoNumpyJSONEncoder

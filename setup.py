@@ -30,7 +30,7 @@ setup(
     install_requires=["django", "djangorestframework", "orjson"],
     python_requires=">=3.6.0",
     zip_safe=True,
-    keywords=["drf_orjson_renderer", "rest_framework", "orjson"],
+    keywords=["drf_orjson_renderer", "rest_framework", "orjson>=3.3.0"],
     classifiers=[
         "Intended Audience :: Developers",
         "License :: OSI Approved :: MIT License",
