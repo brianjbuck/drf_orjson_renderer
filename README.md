@@ -90,36 +90,11 @@ def get_renderer_context(self):
     return renderer_context
 ```
 
-In order to take advantage of the RestFramework Browsable API, when the
-requested media type is not `application/json`, the ORJSON renderer will fall
-back to using the built-in Python `json` module to pretty print your output.
-If you have overriden the default function its possible that you may need to
-do this as well for the `json` encoder class:
+As of ORJSON version 3, 2-space indenting is supported in serialization. In
+order to take advantage of the RestFramework Browsable API, when the
+requested media type is not `application/json`, the ORJSON renderer will add
+`orjson.OPT_INDENT_2` to the options mask to pretty print your output.
 
-```Python
-from django.core.serializers.json import DjangoJSONEncoder
-from rest_framework.views import APIView
-from rest_framework.response import Response
-
-
-class MyJSONEncoder(DjangoJSONEncoder):
-    def default(self, obj):
-        if isinstance(obj, MyComplexData):
-            return dict(obj)
-        return super().default(obj)
-
-class MyView(APIView):
-
-
-    def get_renderer_context(self):
-        renderer_context = super().get_renderer_context()
-        renderer_context["django_encoder_class"] = MyJSONEncoder
-        return renderer_context
-
-    def get(self, request, *args, **kwargs):
-        my_complex_data = MyComplexData()
-        return Response(data=my_complex_data)
-```
 
 This package provides an encoder class that overrides the DjangoJSONEncoder with
 support for numpy types:

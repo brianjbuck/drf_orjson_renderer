@@ -1,10 +1,8 @@
 import functools
-import json
 import operator
 import uuid
 from decimal import Decimal
 
-from django.core.serializers.json import DjangoJSONEncoder
 from django.utils.functional import Promise
 from rest_framework.renderers import BaseRenderer
 from rest_framework.settings import api_settings
@@ -27,7 +25,7 @@ class ORJSONRenderer(BaseRenderer):
     options = functools.reduce(
         operator.or_,
         api_settings.user_settings.get("ORJSON_RENDERER_OPTIONS", ()),
-        orjson.OPT_SERIALIZE_DATACLASS,
+        orjson.OPT_SERIALIZE_NUMPY,
     )
 
     @staticmethod
@@ -70,7 +68,7 @@ class ORJSONRenderer(BaseRenderer):
         :return: bytes() representation of the data encoded to UTF-8
         """
         if data is None:
-            return b''
+            return b""
 
         renderer_context = renderer_context or {}
 
@@ -96,13 +94,9 @@ class ORJSONRenderer(BaseRenderer):
         # If `indent` is provided in the context, then pretty print the result.
         # E.g. If we're being called by RestFramework's BrowsableAPIRenderer.
         indent = renderer_context.get("indent")
-        if indent is None or "application/json" in media_type:
-            serialized = orjson.dumps(
-                data, default=default, option=self.options
-            )
-        else:
-            encoder_class = renderer_context.get(
-                "django_encoder_class", DjangoJSONEncoder
-            )
-            serialized = json.dumps(data, indent=indent, cls=encoder_class)
+        options = self.options
+        if media_type != self.media_type:
+            options |= orjson.OPT_INDENT_2
+
+        serialized = orjson.dumps(data, default=default, option=options)
         return serialized

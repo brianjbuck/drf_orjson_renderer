@@ -7,7 +7,7 @@ from decimal import Decimal
 from io import BytesIO
 
 import numpy
-from django.utils.functional import lazy, Promise
+from django.utils.functional import Promise, lazy
 from rest_framework import status
 from rest_framework.exceptions import ErrorDetail, ParseError
 from rest_framework.settings import api_settings
@@ -65,10 +65,10 @@ class RendererTestCase(unittest.TestCase):
         rendered = self.renderer.render(
             data=self.data,
             media_type="text/html",
-            renderer_context={"indent": 4},
+            renderer_context={"indent": 2},
         )
 
-        self.assertEqual(rendered, json.dumps(self.data, indent=4))
+        self.assertEqual(rendered.decode(), json.dumps(self.data, indent=2))
 
     def test_renderer_works_correctly_with_browsable_api_with_datetime(self):
         """
@@ -78,13 +78,12 @@ class RendererTestCase(unittest.TestCase):
         now = datetime.datetime.now()
         data = {"now": now}
         rendered = self.renderer.render(
-            data=data, media_type="text/html", renderer_context={"indent": 4}
+            data=data, media_type="text/html", renderer_context={"indent": 2}
         )
         reloaded = orjson.loads(rendered)
         now_formatted = now.isoformat()
-        django_formatted = now_formatted[:23] + now_formatted[26:]
 
-        self.assertEqual(reloaded, {"now": django_formatted})
+        self.assertEqual(reloaded, {"now": now_formatted})
 
     def test_renderer_works_correctly_with_browsable_api_with_date(self):
         """
@@ -94,7 +93,7 @@ class RendererTestCase(unittest.TestCase):
         today = datetime.date.today()
         data = {"today": today}
         rendered = self.renderer.render(
-            data=data, media_type="text/html", renderer_context={"indent": 4}
+            data=data, media_type="text/html", renderer_context={"indent": 2}
         )
         reloaded = orjson.loads(rendered)
         self.assertEqual(reloaded, {"today": today.isoformat()})
@@ -313,30 +312,29 @@ class RendererTestCase(unittest.TestCase):
         default but the data cannot be serialized by orjson it should
         raise a JSONEncodeError.
         """
-        data = {'this is a set', 'that orjson cannot serialize'}
+        data = {"this is a set", "that orjson cannot serialize"}
         with self.assertRaises(orjson.JSONEncodeError):
             self.renderer.render(
                 data=data,
                 media_type="application/json",
                 renderer_context={"default_function": None},
             )
-        
+
     def test_renderer_works_correctly_with_django_promise(self):
         """
         Ensure django promises are serialized the same way as
-        DjangoJSONEncoder which just casts the result of the 
-        Promise to a string. 
+        DjangoJSONEncoder which just casts the result of the
+        Promise to a string.
 
         https://github.com/django/django/blob/main/django/core/serializers/json.py
         """
         stringdoubler = lazy(lambda i: i + i, str)
-        data = stringdoubler('hello')
-        self.assertEqual(data, 'hellohello')
+        data = stringdoubler("hello")
+        self.assertEqual(data, "hellohello")
         self.assertIsInstance(data, Promise)
 
         rendered = self.renderer.render(
-            data=data,
-            media_type="application/json",
+            data=data, media_type="application/json",
         )
         reloaded = orjson.loads(rendered)
         self.assertEqual(reloaded, data)
@@ -383,11 +381,10 @@ class RendererTestCase(unittest.TestCase):
         """
         data = None
         rendered = self.renderer.render(
-            data=data,
-            media_type="application/json",
+            data=data, media_type="application/json",
         )
 
-        self.assertEqual(b'', rendered)
+        self.assertEqual(b"", rendered)
 
 
 class ParserTestCase(unittest.TestCase):
