@@ -1,6 +1,8 @@
 Django Rest Framework ORJSON Renderer
 =====================================
 
+[![DRF ORJSON Renderer Tests](https://github.com/brianjbuck/drf_orjson_renderer/actions/workflows/main.yml/badge.svg)](https://github.com/brianjbuck/drf_orjson_renderer/actions/workflows/main.yml)
+
 `drf_orjson_renderer` is JSON renderer and parser for Django Rest Framework
 using the [orjson](https://github.com/ijl/orjson) library. Backed by
 [Rust](https://www.rust-lang.org/), orjson is safe, correct and _fast_. ⚡️
