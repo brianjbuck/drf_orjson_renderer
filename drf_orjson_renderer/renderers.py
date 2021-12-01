@@ -2,6 +2,7 @@ import functools
 import operator
 import uuid
 from decimal import Decimal
+from typing import Any, Optional
 
 import orjson
 from django.utils.functional import Promise
@@ -18,8 +19,9 @@ class ORJSONRenderer(BaseRenderer):
     Uses the Rust-backed orjson library for serialization speed.
     """
 
-    media_type = "application/json"
-    format = "json"
+    format: str = "json"
+    html_media_type: str = "text/html"
+    json_media_type: str = "application/json"
 
     options = functools.reduce(
         operator.or_,
@@ -28,7 +30,7 @@ class ORJSONRenderer(BaseRenderer):
     )
 
     @staticmethod
-    def default(obj):
+    def default(obj: Any) -> Any:
         """
         When orjson doesn't recognize an object type for serialization it passes
         that object to this function which then converts the object to its
@@ -54,7 +56,12 @@ class ORJSONRenderer(BaseRenderer):
         elif hasattr(obj, "__iter__"):
             return list(item for item in obj)
 
-    def render(self, data, media_type=None, renderer_context=None):
+    def render(
+        self,
+        data: Any,
+        media_type: Optional[str] = None,
+        renderer_context: Any = None,
+    ) -> bytes:
         """
         Serializes Python objects to JSON.
 
@@ -93,8 +100,8 @@ class ORJSONRenderer(BaseRenderer):
         # If `indent` is provided in the context, then pretty print the result.
         # E.g. If we're being called by RestFramework's BrowsableAPIRenderer.
         options = self.options
-        if media_type != self.media_type:
+        if media_type == self.html_media_type:
             options |= orjson.OPT_INDENT_2
 
-        serialized = orjson.dumps(data, default=default, option=options)
+        serialized: bytes = orjson.dumps(data, default=default, option=options)
         return serialized

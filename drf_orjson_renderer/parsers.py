@@ -1,8 +1,9 @@
+from typing import Any, Optional
+
+import orjson
 from django.conf import settings
 from rest_framework.exceptions import ParseError
 from rest_framework.parsers import BaseParser
-
-import orjson
 
 
 __all__ = ["ORJSONParser"]
@@ -13,9 +14,14 @@ class ORJSONParser(BaseParser):
     Parses JSON-serialized data by orjson parser.
     """
 
-    media_type = "application/json"
+    media_type: str = "application/json"
 
-    def parse(self, stream, media_type=None, parser_context=None):
+    def parse(
+        self,
+        stream,
+        media_type: Optional[Any] = None,
+        parser_context: Any = None,
+    ) -> Any:
         """
         De-serializes JSON strings to Python objects.
 
@@ -31,10 +37,10 @@ class ORJSONParser(BaseParser):
         :return: Python native instance of the JSON string.
         """
         parser_context = parser_context or {}
-        encoding = parser_context.get("encoding", settings.DEFAULT_CHARSET)
+        encoding: str = parser_context.get("encoding", settings.DEFAULT_CHARSET)
 
         try:
-            data = stream.read().decode(encoding)
+            data: Any = stream.read().decode(encoding)
             return orjson.loads(data)
         except orjson.JSONDecodeError as exc:
             raise ParseError(f"JSON parse error - {exc}")

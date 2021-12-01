@@ -1,9 +1,12 @@
 -r base.txt
 
 black
+django-stubs==1.9.0
+djangorestframework-stubs==1.4.0
 ipdb
 ipython
 isort
-numpy==1.17.3
+mypy==0.910
+numpy==1.21.4
 pre-commit
 pytest-cov==3.0.0
