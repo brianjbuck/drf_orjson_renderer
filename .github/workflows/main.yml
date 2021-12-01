@@ -26,4 +26,4 @@ jobs:
         pip install -r requirements/dev.txt
     - name: Run Tests
       run: |
-        pytest tests
+        pytest --cov .

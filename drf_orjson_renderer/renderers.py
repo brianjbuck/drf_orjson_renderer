@@ -3,11 +3,10 @@ import operator
 import uuid
 from decimal import Decimal
 
+import orjson
 from django.utils.functional import Promise
 from rest_framework.renderers import BaseRenderer
 from rest_framework.settings import api_settings
-
-import orjson
 
 
 __all__ = ["ORJSONRenderer"]
@@ -93,7 +92,6 @@ class ORJSONRenderer(BaseRenderer):
 
         # If `indent` is provided in the context, then pretty print the result.
         # E.g. If we're being called by RestFramework's BrowsableAPIRenderer.
-        indent = renderer_context.get("indent")
         options = self.options
         if media_type != self.media_type:
             options |= orjson.OPT_INDENT_2

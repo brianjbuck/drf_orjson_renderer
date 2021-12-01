@@ -7,13 +7,14 @@ from decimal import Decimal
 from io import BytesIO
 
 import numpy
+import orjson
+import pytest
 from django.utils.functional import Promise, lazy
 from rest_framework import status
 from rest_framework.exceptions import ErrorDetail, ParseError
 from rest_framework.settings import api_settings
 from rest_framework.utils.serializer_helpers import ReturnDict, ReturnList
 
-import orjson
 from drf_orjson_renderer.encoders import DjangoNumpyJSONEncoder
 from drf_orjson_renderer.parsers import ORJSONParser
 from drf_orjson_renderer.renderers import ORJSONRenderer
@@ -26,6 +27,41 @@ class IterObj:
     def __iter__(self):
         for x in range(self.value):
             yield self.value
+
+
+class ListLikeObj(list):
+    pass
+
+
+class ToListObj:
+    def tolist(self):
+        return [1]
+
+
+UUID_PARAM = uuid.uuid4()
+string_doubler = lazy(lambda i: i + i, str)
+
+DATA_PARAMS = [
+    (OrderedDict({"a": "b"}), {"a": "b"}, False),
+    (ListLikeObj([1]), [1], False),
+    (Decimal("1.0"), "1.0", True),
+    (Decimal("1.0"), 1.0, False),
+    ("Test", "Test", False),
+    (UUID_PARAM, str(UUID_PARAM), False),
+    (string_doubler("hello"), "hellohello", False),  # Promise
+    (ToListObj(), [1], False),
+    (IterObj(1), [1], False),
+    (ReturnList([{"1": 1}], serializer=None), [{"1": 1}], False),
+    (ReturnDict({"a": "b"}, serializer=None), {"a": "b"}, False),
+]
+
+
+@pytest.mark.parametrize("test_input,expected,coerce_decimal", DATA_PARAMS)
+def test_built_in_default_method(test_input, expected, coerce_decimal):
+    """Ensure that the built-in default method works for all data types."""
+    api_settings.COERCE_DECIMAL_TO_STRING = True if coerce_decimal else False
+    result = ORJSONRenderer.default(test_input)
+    assert result == expected
 
 
 class RendererTestCase(unittest.TestCase):
@@ -63,9 +99,7 @@ class RendererTestCase(unittest.TestCase):
         by the BrowsableAPIRenderer.
         """
         rendered = self.renderer.render(
-            data=self.data,
-            media_type="text/html",
-            renderer_context={"indent": 2},
+            data=self.data, media_type="text/html", renderer_context=None,
         )
 
         self.assertEqual(rendered.decode(), json.dumps(self.data, indent=2))
@@ -78,7 +112,7 @@ class RendererTestCase(unittest.TestCase):
         now = datetime.datetime.now()
         data = {"now": now}
         rendered = self.renderer.render(
-            data=data, media_type="text/html", renderer_context={"indent": 2}
+            data=data, media_type="text/html", renderer_context=None
         )
         reloaded = orjson.loads(rendered)
         now_formatted = now.isoformat()
@@ -93,7 +127,7 @@ class RendererTestCase(unittest.TestCase):
         today = datetime.date.today()
         data = {"today": today}
         rendered = self.renderer.render(
-            data=data, media_type="text/html", renderer_context={"indent": 2}
+            data=data, media_type="text/html", renderer_context=None
         )
         reloaded = orjson.loads(rendered)
         self.assertEqual(reloaded, {"today": today.isoformat()})
@@ -106,20 +140,7 @@ class RendererTestCase(unittest.TestCase):
         rendered = self.renderer.render(
             data=self.data,
             media_type="application/json",
-            renderer_context={"indent": 4},
-        )
-        reloaded = orjson.loads(rendered)
-
-        self.assertEqual(reloaded, self.data)
-
-    def test_renderer_works_correctly_with_ordered_dict(self):
-        """
-        Ensure that collections.OrderedDict is serialized correctly.
-        """
-        rendered = self.renderer.render(
-            data=OrderedDict(self.data),
-            media_type="application/json",
-            renderer_context={},
+            renderer_context=None,
         )
         reloaded = orjson.loads(rendered)
 
@@ -138,36 +159,6 @@ class RendererTestCase(unittest.TestCase):
 
         self.assertEqual(reloaded, d)
 
-    def test_renderer_works_correctly_with_decimal_as_str(self):
-        """
-        Ensure that decimal.Decimal is serialized correctly when
-        rest_framework.settings.api_settings.COERCE_DECIMAL_TO_STRING=True
-        """
-        api_settings.COERCE_DECIMAL_TO_STRING = True
-        rendered = self.renderer.render(
-            data=Decimal("1.0"),
-            media_type="application/json",
-            renderer_context={},
-        )
-        reloaded = orjson.loads(rendered)
-
-        self.assertEqual(reloaded, str(Decimal("1.0")))
-
-    def test_renderer_works_correctly_with_decimal_as_float(self):
-        """
-        Ensure that decimal.Decimal is serialized correctly when
-        rest_framework.settings.api_settings.COERCE_DECIMAL_TO_STRING=False
-        """
-        api_settings.COERCE_DECIMAL_TO_STRING = False
-        rendered = self.renderer.render(
-            data=Decimal("1.0"),
-            media_type="application/json",
-            renderer_context={},
-        )
-        reloaded = orjson.loads(rendered)
-
-        self.assertEqual(reloaded, float(Decimal("1.0")))
-
     def test_renderer_works_correctly_with_error_detail(self):
         """
         Ensure that rest_framework.exceptions.ErrorDetail
@@ -179,35 +170,6 @@ class RendererTestCase(unittest.TestCase):
             renderer_context={},
         )
         self.assertEqual(rendered.decode(), '"Test"')
-
-    def test_renderer_works_correctly_with_return_dict(self):
-        """
-        Ensure that rest_framework.utils.serializer_helpers.ReturnDict
-        is serialized correctly.
-        """
-        rendered = self.renderer.render(
-            data=ReturnDict(self.data, serializer=None),
-            media_type="application/json",
-            renderer_context={},
-        )
-        reloaded = orjson.loads(rendered)
-
-        self.assertEqual(reloaded, self.data)
-
-    def test_renderer_works_correctly_with_return_list(self):
-        """
-        Ensure that rest_framework.utils.serializer_helpers.ReturnList
-        is serialized correctly.
-        """
-        test_list = [{"1": 1}]
-        rendered = self.renderer.render(
-            data=ReturnList(test_list, serializer=None),
-            media_type="application/json",
-            renderer_context={},
-        )
-        reloaded = orjson.loads(rendered)
-
-        self.assertEqual(reloaded, test_list)
 
     def test_renderer_works_correctly_with_numpy_array(self):
         """
@@ -244,32 +206,6 @@ class RendererTestCase(unittest.TestCase):
         reloaded = orjson.loads(rendered)
 
         self.assertEqual(reloaded, data)
-
-    def test_renderer_works_correctly_with_uuid(self):
-        """
-        Ensure that a UUID is serialized correctly.
-        """
-        uuid_var = uuid.uuid4()
-        data = {"value": uuid_var}
-        rendered = self.renderer.render(
-            data=data, media_type="application/json", renderer_context={}
-        )
-        reloaded = orjson.loads(rendered)
-
-        self.assertEqual(reloaded, {"value": str(uuid_var)})
-
-    def test_renderer_works_correctly_with_iter(self):
-        """
-        Ensure that a custom iterables are serialized correctly.
-        """
-        iter_obj = IterObj(5)
-        data = {"value": iter_obj}
-        rendered = self.renderer.render(
-            data=data, media_type="application/json", renderer_context={}
-        )
-        reloaded = orjson.loads(rendered)
-
-        self.assertEqual(reloaded, {"value": list(IterObj(5))})
 
     def test_renderer_works_with_provided_default(self):
         """
@@ -320,25 +256,6 @@ class RendererTestCase(unittest.TestCase):
                 renderer_context={"default_function": None},
             )
 
-    def test_renderer_works_correctly_with_django_promise(self):
-        """
-        Ensure django promises are serialized the same way as
-        DjangoJSONEncoder which just casts the result of the
-        Promise to a string.
-
-        https://github.com/django/django/blob/main/django/core/serializers/json.py
-        """
-        stringdoubler = lazy(lambda i: i + i, str)
-        data = stringdoubler("hello")
-        self.assertEqual(data, "hellohello")
-        self.assertIsInstance(data, Promise)
-
-        rendered = self.renderer.render(
-            data=data, media_type="application/json",
-        )
-        reloaded = orjson.loads(rendered)
-        self.assertEqual(reloaded, data)
-
     def test_built_in_renderer_works_correctly_with_numpy_int(self):
         """
         Ensure that numpy.int is serialized correctly with Python's
@@ -348,10 +265,7 @@ class RendererTestCase(unittest.TestCase):
         rendered = self.renderer.render(
             data=data,
             media_type="text/html",
-            renderer_context={
-                "django_encoder_class": DjangoNumpyJSONEncoder,
-                "indent": 4,
-            },
+            renderer_context={"django_encoder_class": DjangoNumpyJSONEncoder,},
         )
         reloaded = orjson.loads(rendered)
 
@@ -366,10 +280,7 @@ class RendererTestCase(unittest.TestCase):
         rendered = self.renderer.render(
             data=data,
             media_type="text/html",
-            renderer_context={
-                "django_encoder_class": DjangoNumpyJSONEncoder,
-                "indent": 4,
-            },
+            renderer_context={"django_encoder_class": DjangoNumpyJSONEncoder,},
         )
         reloaded = orjson.loads(rendered)
 
