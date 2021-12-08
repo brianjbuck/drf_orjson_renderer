@@ -22,6 +22,7 @@ class ORJSONRenderer(BaseRenderer):
     format: str = "json"
     html_media_type: str = "text/html"
     json_media_type: str = "application/json"
+    media_type: str = json_media_type
 
     options = functools.reduce(
         operator.or_,
