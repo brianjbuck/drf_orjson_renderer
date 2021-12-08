@@ -75,6 +75,9 @@ class RendererTestCase(unittest.TestCase):
             "e": {"foo": "bar"},
         }
 
+    def test_default_media_type(self):
+        assert self.renderer.media_type == "application/json"
+
     def test_basic_data_structures_rendered_correctly(self):
 
         rendered = self.renderer.render(self.data)
