@@ -27,10 +27,14 @@ setup(
     url="https://github.com/brianjbuck/drf_orjson_renderer",
     packages=["drf_orjson_renderer"],
     license="MIT",
-    install_requires=["django", "djangorestframework", "orjson"],
+    install_requires=[
+        "django>=3.2,<4.0",
+        "djangorestframework",
+        "orjson>=3.3.0",
+    ],
     python_requires=">=3.6.0",
     zip_safe=True,
-    keywords=["drf_orjson_renderer", "rest_framework", "orjson>=3.3.0"],
+    keywords=["drf_orjson_renderer", "rest_framework", "orjson"],
     classifiers=[
         "Intended Audience :: Developers",
         "License :: OSI Approved :: MIT License",
