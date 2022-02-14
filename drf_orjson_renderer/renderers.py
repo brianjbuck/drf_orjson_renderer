@@ -21,6 +21,7 @@ class ORJSONRenderer(BaseRenderer):
     html_media_type: str = "text/html"
     json_media_type: str = "application/json"
     media_type: str = json_media_type
+    encoder_class = JSONEncoder
 
     options = functools.reduce(
         operator.or_,
@@ -65,7 +66,7 @@ class ORJSONRenderer(BaseRenderer):
         # Don't do that here because you will lose the ability to pass `None`
         # to ORJSON.
         if "default_function" not in renderer_context:
-            default = JSONEncoder().default
+            default = self.encoder_class().default
         else:
             default = renderer_context["default_function"]
 
