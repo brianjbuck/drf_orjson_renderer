@@ -10,3 +10,4 @@ mypy==0.910
 numpy==1.21.4
 pre-commit
 pytest-cov==3.0.0
+twine==4.0.1
