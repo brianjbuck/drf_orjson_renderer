@@ -101,7 +101,7 @@ class ORJSONRenderer(BaseRenderer):
         # If `indent` is provided in the context, then pretty print the result.
         # E.g. If we're being called by RestFramework's BrowsableAPIRenderer.
         options = self.options
-        if media_type == self.html_media_type:
+        if media_type and self.html_media_type in media_type:
             options |= orjson.OPT_INDENT_2
 
         serialized: bytes = orjson.dumps(data, default=default, option=options)

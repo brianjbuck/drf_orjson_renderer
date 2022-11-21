@@ -107,6 +107,12 @@ class RendererTestCase(unittest.TestCase):
 
         self.assertEqual(rendered.decode(), json.dumps(self.data, indent=2))
 
+        rendered = self.renderer.render(
+            data=self.data, media_type="text/html; q=1.0", renderer_context=None,
+        )
+
+        self.assertEqual(rendered.decode(), json.dumps(self.data, indent=2))
+
     def test_renderer_works_correctly_with_browsable_api_with_datetime(self):
         """
         When using the built-in json when called by the BrowsableAPIRenderer,
