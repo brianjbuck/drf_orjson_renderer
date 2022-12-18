@@ -38,21 +38,24 @@ class ToListObj:
         return [1]
 
 
-UUID_PARAM = uuid.uuid4()
 string_doubler = lazy(lambda i: i + i, str)
 
 DATA_PARAMS = [
-    (OrderedDict({"a": "b"}), {"a": "b"}, False),
-    (ListLikeObj([1]), [1], False),
-    (Decimal("1.0"), "1.0", True),
-    (Decimal("1.0"), 1.0, False),
-    ("Test", "Test", False),
-    (UUID_PARAM, str(UUID_PARAM), False),
-    (string_doubler("hello"), "hellohello", False),  # Promise
-    (ToListObj(), [1], False),
-    (IterObj(1), [1], False),
-    (ReturnList([{"1": 1}], serializer=None), [{"1": 1}], False),
-    (ReturnDict({"a": "b"}, serializer=None), {"a": "b"}, False),
+    (OrderedDict({"a": "b"}), b'{"a":"b"}', False),
+    (ListLikeObj([1]), b"[1]", False),
+    (Decimal("1.0"), b"1.0", True),
+    (Decimal("1.0"), b"1.0", False),
+    ("Test", b'"Test"', False),
+    (
+        uuid.UUID("3d7b1c0e-e83b-40bc-96ef-bf6c95f3cb7c"),
+        b'"3d7b1c0e-e83b-40bc-96ef-bf6c95f3cb7c"',
+        False,
+    ),
+    (string_doubler("hello"), b'"hellohello"', False),  # Promise
+    (ToListObj(), b"[1]", False),
+    (IterObj(1), b"[1]", False),
+    (ReturnList([{"1": 1}], serializer=None), b'[{"1":1}]', False),
+    (ReturnDict({"a": "b"}, serializer=None), b'{"a":"b"}', False),
 ]
 
 
@@ -60,7 +63,7 @@ DATA_PARAMS = [
 def test_built_in_default_method(test_input, expected, coerce_decimal):
     """Ensure that the built-in default method works for all data types."""
     api_settings.COERCE_DECIMAL_TO_STRING = True if coerce_decimal else False
-    result = ORJSONRenderer.default(test_input)
+    result = ORJSONRenderer().render(test_input)
     assert result == expected
 
 
