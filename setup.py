@@ -31,6 +31,7 @@ setup(
         "django>=3.2",
         "djangorestframework",
         "orjson>=3.3.0",
+        "numpy<2.0",
     ],
     python_requires=">=3.6.0",
     zip_safe=True,
