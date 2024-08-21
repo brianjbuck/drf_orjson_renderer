@@ -4,7 +4,14 @@ import uuid
 from decimal import Decimal
 from typing import Any, Optional
 
+import django
 import orjson
+
+if django.VERSION < (5, 0):
+    from django.db.models.enums import ChoicesMeta as ChoicesType
+elif django.VERSION <= (6, 0):
+    from django.db.models.enums import ChoicesType
+
 from django.utils.functional import Promise
 from rest_framework.renderers import BaseRenderer
 from rest_framework.settings import api_settings
@@ -50,7 +57,7 @@ class ORJSONRenderer(BaseRenderer):
                 return str(obj)
             else:
                 return float(obj)
-        elif isinstance(obj, (str, uuid.UUID, Promise)):
+        elif isinstance(obj, (str, uuid.UUID, Promise, ChoicesType)):
             return str(obj)
         elif hasattr(obj, "tolist"):
             return obj.tolist()

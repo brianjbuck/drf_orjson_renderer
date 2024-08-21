@@ -9,7 +9,8 @@ from io import BytesIO
 import numpy
 import orjson
 import pytest
-from django.utils.functional import Promise, lazy
+from django.db.models import TextChoices
+from django.utils.functional import lazy
 from rest_framework import status
 from rest_framework.exceptions import ErrorDetail, ParseError
 from rest_framework.settings import api_settings
@@ -38,6 +39,10 @@ class ToListObj:
         return [1]
 
 
+class ChoiceObj(TextChoices):
+    FIELD = "option-one", "Option One"
+
+
 UUID_PARAM = uuid.uuid4()
 string_doubler = lazy(lambda i: i + i, str)
 
@@ -53,10 +58,15 @@ DATA_PARAMS = [
     (IterObj(1), [1], False),
     (ReturnList([{"1": 1}], serializer=None), [{"1": 1}], False),
     (ReturnDict({"a": "b"}, serializer=None), {"a": "b"}, False),
+    (ChoiceObj.FIELD, "option-one", False,)
 ]
 
 
-@pytest.mark.parametrize("test_input,expected,coerce_decimal", DATA_PARAMS)
+@pytest.mark.parametrize(
+    "test_input,expected,coerce_decimal",
+    DATA_PARAMS,
+    ids=[type(item[0]) for item in DATA_PARAMS],
+)
 def test_built_in_default_method(test_input, expected, coerce_decimal):
     """Ensure that the built-in default method works for all data types."""
     api_settings.COERCE_DECIMAL_TO_STRING = True if coerce_decimal else False
