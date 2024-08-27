@@ -16,7 +16,6 @@ from rest_framework.exceptions import ErrorDetail, ParseError
 from rest_framework.settings import api_settings
 from rest_framework.utils.serializer_helpers import ReturnDict, ReturnList
 
-from drf_orjson_renderer.encoders import DjangoNumpyJSONEncoder
 from drf_orjson_renderer.parsers import ORJSONParser
 from drf_orjson_renderer.renderers import ORJSONRenderer
 
@@ -284,7 +283,6 @@ class RendererTestCase(unittest.TestCase):
         rendered = self.renderer.render(
             data=data,
             media_type="text/html",
-            renderer_context={"django_encoder_class": DjangoNumpyJSONEncoder,},
         )
         reloaded = orjson.loads(rendered)
 
@@ -299,7 +297,6 @@ class RendererTestCase(unittest.TestCase):
         rendered = self.renderer.render(
             data=data,
             media_type="text/html",
-            renderer_context={"django_encoder_class": DjangoNumpyJSONEncoder,},
         )
         reloaded = orjson.loads(rendered)
 
