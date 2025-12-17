@@ -58,7 +58,11 @@ DATA_PARAMS = [
     (IterObj(1), [1], False),
     (ReturnList([{"1": 1}], serializer=None), [{"1": 1}], False),
     (ReturnDict({"a": "b"}, serializer=None), {"a": "b"}, False),
-    (ChoiceObj.FIELD, "option-one", False,)
+    (
+        ChoiceObj.FIELD,
+        "option-one",
+        False,
+    ),
 ]
 
 
@@ -119,13 +123,17 @@ class RendererTestCase(unittest.TestCase):
         by the BrowsableAPIRenderer.
         """
         rendered = self.renderer.render(
-            data=self.data, media_type="text/html", renderer_context=None,
+            data=self.data,
+            media_type="text/html",
+            renderer_context=None,
         )
 
         self.assertEqual(rendered.decode(), json.dumps(self.data, indent=2))
 
         rendered = self.renderer.render(
-            data=self.data, media_type="text/html; q=1.0", renderer_context=None,
+            data=self.data,
+            media_type="text/html; q=1.0",
+            renderer_context=None,
         )
 
         self.assertEqual(rendered.decode(), json.dumps(self.data, indent=2))
@@ -291,7 +299,9 @@ class RendererTestCase(unittest.TestCase):
         rendered = self.renderer.render(
             data=data,
             media_type="text/html",
-            renderer_context={"django_encoder_class": DjangoNumpyJSONEncoder,},
+            renderer_context={
+                "django_encoder_class": DjangoNumpyJSONEncoder,
+            },
         )
         reloaded = orjson.loads(rendered)
 
@@ -306,7 +316,9 @@ class RendererTestCase(unittest.TestCase):
         rendered = self.renderer.render(
             data=data,
             media_type="text/html",
-            renderer_context={"django_encoder_class": DjangoNumpyJSONEncoder,},
+            renderer_context={
+                "django_encoder_class": DjangoNumpyJSONEncoder,
+            },
         )
         reloaded = orjson.loads(rendered)
 
@@ -318,7 +330,8 @@ class RendererTestCase(unittest.TestCase):
         """
         data = None
         rendered = self.renderer.render(
-            data=data, media_type="application/json",
+            data=data,
+            media_type="application/json",
         )
 
         self.assertEqual(b"", rendered)
@@ -369,7 +382,7 @@ class ParserTestCase(unittest.TestCase):
         invalid UTF-8 bytes from the client (issue #29).
         """
         # Invalid UTF-8 byte sequence
-        invalid_utf8 = b'\x80\x81\x82'
+        invalid_utf8 = b"\x80\x81\x82"
         with self.assertRaises(ParseError):
             self.parser.parse(
                 stream=BytesIO(invalid_utf8),

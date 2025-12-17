@@ -7,6 +7,7 @@ from typing import Any, Optional
 import django
 import orjson
 
+
 if django.VERSION < (5, 0):
     from django.db.models.enums import ChoicesMeta as ChoicesType
 else:
