@@ -8,8 +8,30 @@ jobs:
   test:
     runs-on: ubuntu-latest
     strategy:
+      max-parallel: 4
       matrix:
         python-version: ['3.9', '3.10', '3.11', '3.12', '3.13']
+        django-version: ['3.2', '4.2', '5.0', '5.1', '6.0']
+        exclude:
+          # Django 5.0+ requires Python 3.10+
+          - python-version: '3.9'
+            django-version: '5.0'
+          - python-version: '3.9'
+            django-version: '5.1'
+          - python-version: '3.9'
+            django-version: '6.0'
+          # Django 6.0+ requires Python 3.12+
+          - python-version: '3.10'
+            django-version: '6.0'
+          - python-version: '3.11'
+            django-version: '6.0'
+          # Python 3.13 only supported by Django 5.1+
+          - python-version: '3.13'
+            django-version: '3.2'
+          - python-version: '3.13'
+            django-version: '4.2'
+          - python-version: '3.13'
+            django-version: '5.0'
 
     steps:
     - uses: actions/checkout@v4
@@ -20,7 +42,9 @@ jobs:
     - name: Set up Python ${{ matrix.python-version }}
       run: uv python install ${{ matrix.python-version }}
     - name: Install Dependencies
-      run: uv sync --extra dev
+      run: |
+        uv sync --extra dev
+        uv pip install "Django~=${{ matrix.django-version }}.0"
     - name: Run Tests
       run: uv run pytest --cov .
 
