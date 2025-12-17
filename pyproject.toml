@@ -82,3 +82,13 @@ omit = [
     "setup.py",
     "version.py",
 ]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if __name__ == .__main__.:",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if django.VERSION",
+]

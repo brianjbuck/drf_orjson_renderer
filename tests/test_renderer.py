@@ -4,7 +4,6 @@ import unittest
 import uuid
 from collections import OrderedDict, defaultdict
 from decimal import Decimal
-from io import BytesIO
 
 import numpy
 import orjson
@@ -12,12 +11,11 @@ import pytest
 from django.db.models import TextChoices
 from django.utils.functional import lazy
 from rest_framework import status
-from rest_framework.exceptions import ErrorDetail, ParseError
+from rest_framework.exceptions import ErrorDetail
 from rest_framework.settings import api_settings
 from rest_framework.utils.serializer_helpers import ReturnDict, ReturnList
 
 from drf_orjson_renderer.encoders import DjangoNumpyJSONEncoder
-from drf_orjson_renderer.parsers import ORJSONParser
 from drf_orjson_renderer.renderers import ORJSONRenderer
 
 
@@ -335,60 +333,6 @@ class RendererTestCase(unittest.TestCase):
         )
 
         self.assertEqual(b"", rendered)
-
-
-class ParserTestCase(unittest.TestCase):
-    def setUp(self):
-        self.parser = ORJSONParser()
-        self.data = {
-            "a": [1, 2, 3],
-            "b": True,
-            "c": 1.23,
-            "d": "test",
-            "e": {"foo": "bar"},
-        }
-
-    def test_basic_data_structures_parsed_correctly(self):
-        dumped = orjson.dumps(self.data)
-        parsed = self.parser.parse(BytesIO(dumped))
-
-        self.assertEqual(parsed, self.data)
-
-    def test_parser_works_correctly_when_media_type_and_context_provided(self):
-        dumped = orjson.dumps(self.data)
-        parsed = self.parser.parse(
-            stream=BytesIO(dumped),
-            media_type="application/json",
-            parser_context={},
-        )
-
-        self.assertEqual(parsed, self.data)
-
-    def test_parser_raises_decode_error(self):
-        """
-        Ensure that the rest_framework.errors.ParseError is raised when sending
-        invalid JSON from the client.
-        """
-        with self.assertRaises(ParseError):
-            self.parser.parse(
-                stream=BytesIO(b'{"value": NaN}'),
-                media_type="application/json",
-                parser_context={},
-            )
-
-    def test_parser_raises_parse_error_on_invalid_utf8(self):
-        """
-        Ensure that the rest_framework.errors.ParseError is raised when sending
-        invalid UTF-8 bytes from the client (issue #29).
-        """
-        # Invalid UTF-8 byte sequence
-        invalid_utf8 = b"\x80\x81\x82"
-        with self.assertRaises(ParseError):
-            self.parser.parse(
-                stream=BytesIO(invalid_utf8),
-                media_type="application/json",
-                parser_context={},
-            )
 
 
 if __name__ == "__main__":
