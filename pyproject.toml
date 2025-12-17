@@ -1,0 +1,84 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "drf_orjson_renderer"
+version = "1.8.0"
+description = "Django RestFramework JSON Renderer Backed by orjson"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [
+    {name = "brianjbuck", email = "brian@thebuckpasser.com"}
+]
+keywords = ["drf_orjson_renderer", "rest_framework", "orjson"]
+classifiers = [
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Natural Language :: English",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
+requires-python = ">=3.9"
+dependencies = [
+    "django>=3.2",
+    "djangorestframework>=3.9",
+    "orjson>=3.3.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/brianjbuck/drf_orjson_renderer"
+Repository = "https://github.com/brianjbuck/drf_orjson_renderer"
+Issues = "https://github.com/brianjbuck/drf_orjson_renderer/issues"
+
+[project.optional-dependencies]
+dev = [
+    "black",
+    "django-stubs==1.9.0",
+    "djangorestframework-stubs==1.4.0",
+    "ipdb",
+    "ipython",
+    "isort",
+    "mypy==0.910",
+    "numpy",
+    "pre-commit",
+    "pytest-cov==3.0.0",
+]
+
+[tool.setuptools]
+packages = ["drf_orjson_renderer"]
+zip-safe = true
+
+[tool.black]
+line-length = 80
+safe = true
+
+[tool.isort]
+profile = "black"
+line_length = 80
+known_first_party = ["drf_orjson_renderer"]
+known_third_party = ["django", "numpy", "orjson", "pytest", "rest_framework"]
+include_trailing_comma = true
+use_parentheses = true
+multi_line_output = 3
+lines_after_imports = 2
+
+[tool.mypy]
+python_version = "3.9"
+warn_return_any = true
+warn_unused_configs = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "--strict-markers"
+
+[tool.coverage.run]
+omit = [
+    "tests/*",
+    "setup.py",
+    "version.py",
+]

@@ -1,14 +1,14 @@
 #!/usr/bin/env python
+import os
 
-from setuptools import setup
-
-import version
+from setuptools import find_packages, setup
 
 
-# TESTS_REQUIRES = [
-#     str(r.req)
-#     for r in parse_requirements("requirements/dev.txt", session=PipSession())
-# ]
+def get_version():
+    with open(os.path.join(os.path.dirname(__file__), "version.py")) as f:
+        for line in f:
+            if line.startswith("__version__"):
+                return line.split("=")[1].strip().strip("\"'")
 
 
 def readme():
@@ -18,14 +18,15 @@ def readme():
 
 setup(
     name="drf_orjson_renderer",
-    version=version.__version__,
+    version=get_version(),
     description="Django RestFramework JSON Renderer Backed by orjson",
     long_description_content_type="text/markdown",
     long_description=readme(),
     author="brianjbuck",
     author_email="brian@thebuckpasser.com",
     url="https://github.com/brianjbuck/drf_orjson_renderer",
-    packages=["drf_orjson_renderer"],
+    packages=find_packages(),
+    py_modules=["version"],
     license="MIT",
     install_requires=[
         "django>=3.2",

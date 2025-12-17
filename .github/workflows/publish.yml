@@ -19,12 +19,8 @@ jobs:
         enable-cache: true
     - name: Set up Python ${{ matrix.python-version }}
       run: uv python install ${{ matrix.python-version }}
-    - name: Create virtual environment
-      run: uv venv
     - name: Install Dependencies
-      run: |
-        uv pip install -r requirements/dev.txt
-        uv pip install -e .
+      run: uv sync --extra dev
     - name: Run Tests
       run: uv run pytest --cov .
 

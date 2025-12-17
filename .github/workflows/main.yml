@@ -17,10 +17,8 @@ jobs:
         enable-cache: true
     - name: Set up Python
       run: uv python install 3.12
-    - name: Create virtual environment
-      run: uv venv
-    - name: Install pre-commit
-      run: uv pip install pre-commit
+    - name: Install dependencies
+      run: uv sync --extra dev
     - name: Run pre-commit hooks
       run: uv run pre-commit run --all-files
 
@@ -61,13 +59,10 @@ jobs:
         enable-cache: true
     - name: Set up Python ${{ matrix.python-version }}
       run: uv python install ${{ matrix.python-version }}
-    - name: Create virtual environment
-      run: uv venv
     - name: Install Dependencies
       run: |
-        uv pip install -r requirements/dev.txt
+        uv sync --extra dev
         uv pip install "Django~=${{ matrix.django-version }}.0"
-        uv pip install -e .
     - name: Run Tests
       run: |
         uv run pytest --cov . --cov-report=xml
