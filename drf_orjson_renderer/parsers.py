@@ -42,5 +42,5 @@ class ORJSONParser(BaseParser):
         try:
             data: Any = stream.read().decode(encoding)
             return orjson.loads(data)
-        except orjson.JSONDecodeError as exc:
+        except ValueError as exc:
             raise ParseError(f"JSON parse error - {exc}")
