@@ -9,7 +9,7 @@ import orjson
 
 if django.VERSION < (5, 0):
     from django.db.models.enums import ChoicesMeta as ChoicesType
-elif django.VERSION <= (6, 0):
+else:
     from django.db.models.enums import ChoicesType
 
 from django.utils.functional import Promise
@@ -30,6 +30,12 @@ class ORJSONRenderer(BaseRenderer):
     html_media_type: str = "text/html"
     json_media_type: str = "application/json"
     media_type: str = json_media_type
+
+    # We don't set a charset because JSON is a binary encoding,
+    # that can be encoded as utf-8, utf-16 or utf-32.
+    # See: https://www.ietf.org/rfc/rfc4627.txt
+    # Also: http://lucumr.pocoo.org/2013/7/19/application-mimetypes-and-encodings/
+    charset: Optional[str] = None
 
     options = functools.reduce(
         operator.or_,
