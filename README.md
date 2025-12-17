@@ -103,7 +103,8 @@ requested media type is not `application/json`, the ORJSON renderer will add
 When this package was originally written ORJSON did not natively support
 serializing numpy types. This package provided an encoder class that
 overrides the DjangoJSONEncoder with support for numpy types. This encoder
-is no longer necessary but included for backwards compatibility.
+is no longer necessary but included for backwards compatibility. As of version
+1.8.0, the encoder supports NumPy 2.0.
 
 ```Python
 from drf_orjson_renderer.encoders import DjangoNumpyJSONEncoder

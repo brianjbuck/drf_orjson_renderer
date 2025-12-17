@@ -4,9 +4,8 @@ from django.core.serializers.json import DjangoJSONEncoder
 
 class DjangoNumpyJSONEncoder(DjangoJSONEncoder):
     int_types = (
-        numpy.int_,
-        numpy.intc,
         numpy.intp,
+        numpy.intc,
         numpy.int8,
         numpy.int16,
         numpy.int32,
@@ -17,7 +16,7 @@ class DjangoNumpyJSONEncoder(DjangoJSONEncoder):
         numpy.uint64,
     )
 
-    float_types = (numpy.float_, numpy.float16, numpy.float32, numpy.float64)
+    float_types = (numpy.float64, numpy.float16, numpy.float32)
 
     def default(self, o):
         if isinstance(o, self.int_types):
