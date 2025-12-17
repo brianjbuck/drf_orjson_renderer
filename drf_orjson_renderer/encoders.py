@@ -7,13 +7,15 @@ from django.core.serializers.json import DjangoJSONEncoder
 class DjangoNumpyJSONEncoder(DjangoJSONEncoder):
     """
     DEPRECATED: This encoder is no longer necessary as orjson>=3.3.0
-    natively supports numpy types. This class will be removed in a future release.
+    natively supports numpy types. This class will be removed in a
+    future release.
     """
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         warnings.warn(
-            "DjangoNumpyJSONEncoder is deprecated and will be removed in a future release. ",
+            "DjangoNumpyJSONEncoder is deprecated and will be removed "
+            "in a future release.",
             DeprecationWarning,
             stacklevel=2,
         )

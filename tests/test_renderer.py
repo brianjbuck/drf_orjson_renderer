@@ -98,7 +98,6 @@ class RendererTestCase(unittest.TestCase):
         assert self.renderer.charset is None
 
     def test_basic_data_structures_rendered_correctly(self):
-
         rendered = self.renderer.render(self.data)
         reloaded = orjson.loads(rendered)
 
@@ -107,7 +106,6 @@ class RendererTestCase(unittest.TestCase):
     def test_renderer_works_correctly_when_media_type_and_context_provided(
         self,
     ):
-
         rendered = self.renderer.render(
             data=self.data, media_type="application/json", renderer_context={}
         )

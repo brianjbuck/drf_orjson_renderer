@@ -25,9 +25,11 @@ class ORJSONParser(BaseParser):
         """
         De-serializes JSON strings to Python objects.
 
-        :param stream: A stream-like object representing the body of the request.
-        :param media_type: If provided, this is the media type of the incoming
-                request content specified in the `Content-Type` HTTP header.
+        :param stream: A stream-like object representing the body of the
+                request.
+        :param media_type: If provided, this is the media type of the
+                incoming request content specified in the `Content-Type`
+                HTTP header.
         :param parser_context: If supplied, this argument will be a dictionary
                 containing any additional context that may be required to parse
                 the request content.

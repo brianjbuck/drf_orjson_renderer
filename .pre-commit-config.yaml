@@ -14,16 +14,22 @@ repos:
     - id: check-merge-conflict
     - id: detect-private-key
     - id: requirements-txt-fixer
-- repo: https://github.com/psf/black
-  rev: 25.12.0
+- repo: https://github.com/astral-sh/ruff-pre-commit
+  rev: v0.14.9
   hooks:
-  - id: black
-    args: [--line-length=80, --safe]
-    language_version: python3
-- repo: https://github.com/PyCQA/isort
-  rev: 7.0.0
+    - id: ruff
+      args: [--fix]
+    - id: ruff-format
+- repo: https://github.com/pre-commit/mirrors-mypy
+  rev: v1.19.1
   hooks:
-  - id: isort
+  - id: mypy
+    additional_dependencies:
+      - django-stubs==1.9.0
+      - djangorestframework-stubs==1.4.0
+      - types-orjson
+    args: [--ignore-missing-imports]
+    exclude: ^tests/
 - repo: https://github.com/brianjbuck/noeval
   rev: v1.0.0
   hooks:

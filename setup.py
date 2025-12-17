@@ -12,7 +12,7 @@ def get_version():
 
 
 def readme():
-    with open("README.md", "r") as f:
+    with open("README.md") as f:
         return f.read()
 
 

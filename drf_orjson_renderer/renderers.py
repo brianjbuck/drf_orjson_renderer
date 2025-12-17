@@ -1,3 +1,4 @@
+# mypy: disable-error-code="attr-defined,no-redef"
 import functools
 import operator
 import uuid
@@ -8,10 +9,16 @@ import django
 import orjson
 
 
+# fmt: off
 if django.VERSION < (5, 0):
-    from django.db.models.enums import ChoicesMeta as ChoicesType
+    from django.db.models.enums import (
+        ChoicesMeta as ChoicesType,  # type: ignore[attr-defined]
+    )
 else:
-    from django.db.models.enums import ChoicesType
+    from django.db.models.enums import (
+        ChoicesType,  # type: ignore[attr-defined,no-redef]
+    )
+# fmt: on
 
 from django.utils.functional import Promise
 from rest_framework.renderers import BaseRenderer
